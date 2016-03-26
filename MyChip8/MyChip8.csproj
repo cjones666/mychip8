@@ -41,14 +41,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Chip8System.cs" />
     <Compile Include="Disassembler\Disassembler.cs" />
     <Compile Include="Disassembler\ProgramLoader.cs" />
     <Compile Include="Interpreter\IInstruction.cs" />
     <Compile Include="Interpreter\InstructionHandler.cs" />
     <Compile Include="Interpreter\Instructions.cs" />
     <Compile Include="Interpreter\InstructionType.cs" />
-    <Compile Include="SystemMemory\CPU.cs" />
-    <Compile Include="SystemMemory\Memory.cs" />
+    <Compile Include="System\CPU.cs" />
+    <Compile Include="System\Memory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MyChip8.SystemMemory;
+using MyChip8.SystemComponents;
 
 namespace MyChip8.Interpreter
 {
@@ -11,12 +11,19 @@ namespace MyChip8.Interpreter
     {
         public abstract class Instruction : IInstruction
         {
-            public abstract void Execute(CPU cpu, Memory mem);
+            public abstract void Execute(CPU cpu);
         }
 
         public class SYSInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            private ushort _address;
+
+            public SYSInstruction(ushort address)
+            {
+                _address = address;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
@@ -24,7 +31,7 @@ namespace MyChip8.Interpreter
 
         public class CLSInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
@@ -32,103 +39,295 @@ namespace MyChip8.Interpreter
 
         public class RETInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class JPInstruction : Instruction
-        {
-            public override void Execute(CPU cpu, Memory mem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class CALLInstruction : Instruction
-        {
-            public override void Execute(CPU cpu, Memory mem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class SEInstruction : Instruction
-        {
-            public override void Execute(CPU cpu, Memory mem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class SNEInstruction : Instruction
-        {
-            public override void Execute(CPU cpu, Memory mem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class LDInstruction : Instruction
-        {
-            public override void Execute(CPU cpu, Memory mem)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class ADDInstruction : Instruction
-        {
-            public override void Execute(CPU cpu, Memory mem)
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
         }
         
+        /// <summary>
+        /// Jump to location nnn.
+        /// </summary>
+        public class JPInstruction : Instruction
+        {
+            private ushort _address;
+
+            public JPInstruction(ushort address)
+            {
+                _address = address;
+            }
+
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Call subroutine at nnn.
+        /// </summary>
+        public class CALLInstruction : Instruction
+        {
+            private ushort _address;
+
+            public CALLInstruction(ushort address)
+            {
+                _address = address;
+            }
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        /// <summary>
+        /// Skip next instruction if Vx = kk.
+        /// </summary>
+        public class SEInstruction : Instruction
+        {
+
+            private byte _VRegister;
+            private byte _value;
+
+            public SEInstruction(byte vRegister, byte value)
+            {
+                _VRegister = vRegister;
+                _value = value;
+            }
+
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        /// <summary>
+        /// Skip next instruction if Vx != kk.
+        /// </summary>
+        public class SNEInstruction : Instruction
+        {
+            private byte _VRegister;
+            private byte _value;
+
+            public SNEInstruction(byte vRegister, byte value)
+            {
+                _VRegister = vRegister;
+                _value = value;
+            }
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        /// <summary>
+        /// Set Vx = kk.
+        /// </summary>
+        public class LDInstruction : Instruction
+        {
+            protected byte _VRegister;
+            private byte _value;
+
+            public LDInstruction(byte vRegister, byte value)
+            {
+                _VRegister = vRegister;
+                _value = value;
+            }
+
+            protected LDInstruction()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        /// <summary>
+        /// Set Vx = Vx + kk.
+        /// </summary>
+        public class ADDInstruction : Instruction
+        {
+            protected byte _VRegister;
+            private byte _value;
+
+            public ADDInstruction(byte vRegister, byte value)
+            {
+                _VRegister = vRegister;
+                _value = value;
+            }
+
+            protected ADDInstruction()
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Set Vx = Vy.
+        /// </summary>
+        public class LDRegisterInstruction : LDInstruction
+        {
+            private byte _VRegister2;
+
+            public LDRegisterInstruction(byte vRegister, byte vRegister2) : base()
+            {
+                _VRegister = vRegister;
+                _VRegister2 = vRegister2;
+            }
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Set Vx = Vx OR Vy.
+        /// </summary>
         public class ORInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public byte _vRegister;
+            public byte _vRegister2;
+
+            public ORInstruction(byte vRegister, byte vRegister2)
+            {
+                _vRegister2 = vRegister2;
+                _vRegister = vRegister;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
         }
 
+        public class ANDInstruction : Instruction
+        {
+            public byte _vRegister;
+            public byte _vRegister2;
+
+            public ANDInstruction(byte vRegister, byte vRegister2)
+            {
+                _vRegister = vRegister;
+                _vRegister2 = vRegister2;
+            }
+
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Set Vx = Vx XOR Vy.
+        /// </summary>
         public class XORInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public byte _vRegister;
+            public byte _vRegister2;
+
+            public XORInstruction(byte vRegister, byte vRegister2)
+            {
+                _vRegister = vRegister;
+                _vRegister2 = vRegister2;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
         }
 
+        /// <summary>
+        /// Set Vx = Vx + Vy, set VF = carry.
+        /// </summary>
+        public class ADDRegisterInstruction : ADDInstruction
+        {
+            private byte _vRegister2;
+
+            public ADDRegisterInstruction(byte vRegister,byte register2) : base()
+            {
+                _VRegister = vRegister;
+                _vRegister2 = register2;
+            }
+
+            public override void Execute(CPU cpu)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        /// <summary>
+        /// Set Vx = Vx - Vy, set VF = NOT borrow.
+        /// </summary>
         public class SUBInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public byte _vRegister;
+            public byte _vRegister2;
+
+            public SUBInstruction(byte vRegister, byte vRegister2)
+            {
+                _vRegister = vRegister;
+                _vRegister2 = vRegister2;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
         }
-
+        /// <summary>
+        /// Set Vx = Vx SHR 1.
+        /// </summary>
         public class SHRInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public byte _vRegister;
+
+            public SHRInstruction(byte vRegister)
+            {
+                _vRegister = vRegister;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
         }
-
+        /// <summary>
+        /// Set Vx = Vy - Vx, set VF = NOT borrow.
+        /// </summary>
         public class SUBNInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public byte _vRegister;
+            public byte _vRegister2;
+
+            public SUBNInstruction(byte vRegister, byte vRegister2)
+            {
+                _vRegister = vRegister;
+                _vRegister2 = vRegister2;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
         }
-
+        /// <summary>
+        /// Set Vx = Vx SHL 1.
+        /// </summary>
         public class SHLInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public byte _vRegister;
+
+            public SHLInstruction(byte vRegister)
+            {
+                _vRegister = vRegister;
+            }
+
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
@@ -136,7 +335,7 @@ namespace MyChip8.Interpreter
 
         public class RNDInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
@@ -144,7 +343,7 @@ namespace MyChip8.Interpreter
 
         public class DRWInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
@@ -152,7 +351,7 @@ namespace MyChip8.Interpreter
 
         public class SKPInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }
@@ -160,7 +359,7 @@ namespace MyChip8.Interpreter
 
         public class SKNPInstruction : Instruction
         {
-            public override void Execute(CPU cpu, Memory mem)
+            public override void Execute(CPU cpu)
             {
                 throw new NotImplementedException();
             }

@@ -10,7 +10,6 @@ namespace MyChip8.Interpreter
 {
     public class InstructionHandler
     {
-
         private Dictionary<InstructionType, IInstruction> _opMap;
 
         public InstructionHandler()
@@ -37,7 +36,6 @@ namespace MyChip8.Interpreter
         // The instruction ops in CHIP-8 are 2 bytes, thus we are passing in the op as a single 16-bit short integer.
         public static string GetInstruction(ushort instructionBytes)
         {
-            
             var upperNib = (instructionBytes >> 12) & 0x000F;
 
             int addr;
