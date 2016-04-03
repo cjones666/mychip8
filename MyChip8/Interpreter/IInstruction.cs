@@ -12,5 +12,6 @@ namespace MyChip8.Interpreter
     public interface IInstruction
     {
         void Execute(CPU cpu);
+        void Finalize(CPU cpu);
     }
 }

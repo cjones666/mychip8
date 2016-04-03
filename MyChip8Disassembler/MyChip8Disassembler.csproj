@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{10D700E1-FCB2-429E-84B9-2B06ACD27C53}</ProjectGuid>
+    <ProjectGuid>{18EF6543-76EB-4176-8710-E3462BD1BDC8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MyChip8</RootNamespace>
-    <AssemblyName>MyChip8</AssemblyName>
+    <RootNamespace>MyChip8Disassembler</RootNamespace>
+    <AssemblyName>MyChip8Disassembler</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -41,18 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Chip8System.cs" />
-    <Compile Include="Interpreter\IInstruction.cs" />
-    <Compile Include="Interpreter\InstructionHandler.cs" />
-    <Compile Include="Interpreter\Instructions.cs" />
-    <Compile Include="Interpreter\InstructionType.cs" />
-    <Compile Include="System\CPU.cs" />
-    <Compile Include="System\Memory.cs" />
+    <Compile Include="Disassembler\Disassembler.cs" />
+    <Compile Include="Disassembler\ProgramLoader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyChip8\MyChip8.csproj">
+      <Project>{10d700e1-fcb2-429e-84b9-2b06acd27c53}</Project>
+      <Name>MyChip8</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

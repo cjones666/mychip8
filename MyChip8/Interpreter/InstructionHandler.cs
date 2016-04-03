@@ -27,162 +27,131 @@ namespace MyChip8.Interpreter
             }
         }
 
-        public static string GetInstruction(byte upperByte, byte lowerByte)
+        public static IInstruction GetInstruction(byte upperByte, byte lowerByte)
         {
             var instructionBytes = (ushort)((upperByte) << 8 | (lowerByte));
             return GetInstruction(instructionBytes);
         }
 
         // The instruction ops in CHIP-8 are 2 bytes, thus we are passing in the op as a single 16-bit short integer.
-        public static string GetInstruction(ushort instructionBytes)
+        public static IInstruction GetInstruction(ushort instructionBytes)
         {
             var upperNib = (instructionBytes >> 12) & 0x000F;
 
-            int addr;
-            int lowerByte;
-            int register;
+            ushort addr;
+            byte lowerByte;
+            byte register;
             switch (upperNib)
             {
                 case 0x0:
                 {
                     // Get the lower byte
-                    lowerByte = instructionBytes & 0x00FF;
+                    lowerByte = (byte)(instructionBytes & 0x00FF);
                     if (lowerByte == 0xE0)
-                        return ("CLS");
+                        return new Instructions.CLSInstruction(instructionBytes,0,0);
                     if (lowerByte == 0xEE)
-                        return ("RET");
-                    return ("OpCode 0 not implemented");
+                        return new Instructions.RETInstruction(instructionBytes, 0, 0);
+                    return null;
                 }
                 case 0x1:
-                    addr = instructionBytes & 0x0FFF;
-                    return (string.Format("JP {0:x3}", addr));
+                    addr = (ushort)(instructionBytes & 0x0FFF);
+                    return new Instructions.JPInstruction(instructionBytes,addr,0);
                 case 0x2:
-                    addr = instructionBytes & 0x0FFF;
-                    return (string.Format("CALL {0:x3}", addr));
+                    addr = (ushort) (instructionBytes & 0x0FFF);
+                    return new Instructions.CALLInstruction(instructionBytes,addr,0);
                 case 0x3:
-                    register = (instructionBytes >> 8) & 0x000F;
-                    lowerByte = instructionBytes & 0x00Ff;
-                    return (string.Format("SE V{0:x1}, {1:x2}", register,lowerByte));
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
+                    lowerByte = (byte) (instructionBytes & 0x00Ff);
+                    return new Instructions.SEInstruction(instructionBytes,register,lowerByte);
                 case 0x4:
-                    register = (instructionBytes >> 8) & 0x000F;
-                    lowerByte = instructionBytes & 0x00FF;
-                    return (string.Format("SNE V{0:x1}, {1:x2}", register,lowerByte));
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
+                    lowerByte = (byte) (instructionBytes & 0x00FF);
+                    return new Instructions.SNEInstruction(instructionBytes,register,lowerByte);
                 case 0x5:
-                    var register1 = (instructionBytes >> 8) & 0x000F;
-                    var register2 = (instructionBytes >> 4) & 0x000F;
-                    return (string.Format("SE V{0:x1}, V{1:x1}", register1, register2));
+                    var register1 = (ushort) ((instructionBytes >> 8) & 0x000F);
+                    var register2 = (ushort) ((instructionBytes >> 4) & 0x000F);
+                    return new Instructions.SEInstruction(instructionBytes,register1,register2);
                 case 0x6:
-                    register = (instructionBytes >> 8) & 0x000F;
-                    lowerByte = instructionBytes & 0x00Ff;
-                    return (string.Format("LD V{0:x1}, {1:x2}", register, lowerByte));
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
+                    lowerByte = (byte) (instructionBytes & 0x00Ff);
+                    return new Instructions.LDInstruction(instructionBytes,register,lowerByte);
                 case 0x7:
-                    register = (instructionBytes >> 8) & 0x000F;
-                    lowerByte = instructionBytes & 0x00Ff;
-                    return (string.Format("ADD V{0:x1}, {1:x2}", register, lowerByte));
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
+                    lowerByte = (byte) (instructionBytes & 0x00Ff);
+                    return new Instructions.ADDInstruction(instructionBytes,register,lowerByte);
                 case 0x8:
-                    register1 = (instructionBytes >> 8) & 0x000F;
-                    register2 = (instructionBytes >> 4) & 0x000F;
+                    register1 = (ushort) ((instructionBytes >> 8) & 0x000F);
+                    register2 = (ushort) ((instructionBytes >> 4) & 0x000F);
                     var op = instructionBytes & 0x000F;
-                    string opCode = String.Empty;
-                    if (op == 0x0)
-                        opCode = "LD";
-                    else if (op == 0x1)
-                        opCode = "OR";
-                    else if (op == 0x2)
-                        opCode = "AND";
-                    else if (op == 0x3)
-                        opCode = "XOR";
-                    else if (op == 0x4)
-                        opCode = "ADD";
-                    else if (op == 0x5)
-                        opCode = "SUB";
-                    else if (op == 0x6)
-                        opCode = "SHR";
-                    else if (op == 0x7)
-                        opCode = "SUBN";
-                    else if (op == 0xE)
-                        opCode = "SHL";
-                    return (string.Format("{0} V{1:x1},V{2:x1}", opCode, register1, register2));
+                    var opCode = string.Empty;
+                    switch (op)
+                    {
+                        case 0x0:
+                            return new Instructions.LDInstruction(instructionBytes,register1,register2);
+                        case 0x1:
+                            return new Instructions.ORInstruction(instructionBytes,register1,register2);
+                        case 0x2:
+                            return new Instructions.ANDInstruction(instructionBytes,register1,register2);
+                        case 0x3:
+                            return new Instructions.XORInstruction(instructionBytes, register1, register2);
+                        case 0x4:
+                            return new Instructions.ADDInstruction(instructionBytes, register1, register2);
+                        case 0x5:
+                            return new Instructions.SUBInstruction(instructionBytes, register1, register2);
+                        case 0x6:
+                            return new Instructions.SHRInstruction(instructionBytes, register1, register2);
+                        case 0x7:
+                            return new Instructions.SUBNInstruction(instructionBytes, register1, register2);
+                        case 0xE:
+                            return new Instructions.SHLInstruction(instructionBytes, register1, register2);
+                        default:
+                            return null;
+                    }
                 case 0x9:
-                    register1 = (instructionBytes >> 8) & 0x000F;
-                    register2 = (instructionBytes >> 4) & 0x000F;
-                    return (string.Format("SNE V{0:x1}, {1:x2}", register1, register2));
+                    register1 = (ushort) ((instructionBytes >> 8) & 0x000F);
+                    register2 = (ushort) ((instructionBytes >> 4) & 0x000F);
+                    return new Instructions.SNEInstruction(instructionBytes, register1, register2);
                 case 0xA:
-                    addr = instructionBytes & 0x0FFF;
-                    return (string.Format("LD I, {0:x3}", addr));
+                    addr = (ushort) (instructionBytes & 0x0FFF);
+                    return new Instructions.LDInstruction(instructionBytes,addr,0);
                 case 0xB:
-                    addr = instructionBytes & 0x0FFF;
-                    return (string.Format("JP V0, {0:x3}", addr));
+                    addr = (ushort) (instructionBytes & 0x0FFF);
+                    return new Instructions.JPInstruction(instructionBytes,addr,0);
                 case 0xC: 
-                    register = (instructionBytes >> 8) & 0x000F;
-                    lowerByte = instructionBytes & 0x00Ff;
-                    return (string.Format("RND V{0:x1}, {1:x2}", register, lowerByte));
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
+                    lowerByte = (byte) (instructionBytes & 0x00Ff);
+                    return new Instructions.RNDInstruction(instructionBytes,register,lowerByte);
                 case 0xD:
-                    register1 = (instructionBytes >> 8) & 0x000F;
-                    register2 = (instructionBytes >> 4) & 0x000F;
-                    var lowerNibble = instructionBytes & 0x000F;
-                    return (string.Format("DRW V{0:x1}, V{1:x1}, {2:x1}", register1, register2,lowerNibble));
+                    register1 = (ushort) ((instructionBytes >> 8) & 0x000F);
+                    register2 = (ushort) ((instructionBytes >> 4) & 0x000F);
+                    var lowerNibble = (byte)(instructionBytes & 0x000F);
+                    return new Instructions.DRWInstruction(instructionBytes,register1,register2,lowerNibble);
                 case 0xE:
-                    register = (instructionBytes >> 8) & 0x000F;
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
                     op = instructionBytes & 0x00FF;
-                    opCode = string.Empty;
-                    if (op == 0x9E)
-                        opCode = "SKP";
-                    else if (op == 0xA1)
-                        opCode = "SKNP";
-                    return (string.Format("{0} V{1:x1}", opCode, register));
+                    switch (op)
+                    {
+                        case 0x9E:
+                            return new Instructions.SKPInstruction(instructionBytes,register,0);
+                        case 0xA1:
+                            return new Instructions.SKNPInstruction(instructionBytes,register,0);
+                        default:
+                            return null;
+                    }
                 case 0xF:
-                    register = (instructionBytes >> 8) & 0x000F;
+                    register = (byte) ((instructionBytes >> 8) & 0x000F);
                     op = instructionBytes & 0x00FF;
-                    opCode = string.Empty;
-                    if (op == 0x07)
+                    if (op == 0x07 || op == 0x0A || op == 0x15 || op == 0x18 || op == 0x29 || op == 0x33 || op == 0x55 || op == 0x65)
                     {
-                        opCode = "LD";
-                        return (string.Format("{0} V{1:x1},DT", opCode, register));
+                        return new Instructions.LDInstruction(instructionBytes,register,0);
                     }
-                    else if (op == 0x0A)
+                    if (op == 0x1E)
                     {
-                        opCode = "LD";
-                        return (string.Format("{0} V{1:x1},K", opCode, register));
+                        return new Instructions.ADDInstruction(instructionBytes,register,0);
                     }
-                    else if (op == 0x15)
-                    {
-                        opCode = "LD";
-                        return (string.Format("{0} DT,V{1:x1}", opCode, register));
-                    }
-                    else if (op == 0x18)
-                    {
-                        opCode = "LD";
-                        return (string.Format("{0} ST,V{1:x1}", opCode, register));
-                    }
-                    else if (op == 0x1E)
-                    {
-                        opCode = "ADD";
-                        return (string.Format("{0} I,V{1:x1}", opCode, register));    
-                    }
-                    else if (op == 0x29)
-                    {
-                        opCode = "LD";
-                        return (string.Format("{0} F,V{1:x1}", opCode, register));
-                    }
-                    else if (op == 0x33)
-                    {
-                        opCode = "LD";
-                        return (string.Format("{0} B,V{1:x1}", opCode, register));
-                    }
-                    else if (op == 0x55)
-                    {
-                        opCode = "LD";
-                        return (string.Format("{0} [I],V{1:x1}", opCode, register));
-                    }
-                    else if (op == 0x65)
-                    {
-                        opCode = "LD";
-                        return (string.Format("{0} V{1:x1}, [I]", opCode, register));
-                    }
-                    return "OpCode not recognized";
+                    return null;
                 default:
-                    return "OpCode not recognized";
+                    return null;
             }
         }
     }
