@@ -1,0 +1,38 @@
+﻿<Window x:Class="DisassemblerUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DisassemblerUI"
+        mc:Ignorable="d" FontSize="18" FontFamily="Segoe UI Light"
+        Title="MyChip8 Disassembler" Height="450" Width="800" >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="10"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,0,0,0" Text="File:"/>
+        <TextBox Name="FileTextBox" Grid.Column="2" Grid.Row="1" Margin="10,0,10,0" Width="100"/>
+        <Button Name="LoadFileButton" Grid.Column="3" Grid.Row="1"  Content="Load" Click="LoadFileButton_OnClick" Width="50"></Button>
+
+        <TextBlock Grid.Column="1" Grid.Row="2">Show Hex</TextBlock>
+        <CheckBox Name="ShowHexCheckBox" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Checked="ShowHexCheckBox_Checked"></CheckBox>
+
+        <DataGrid Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" ></DataGrid>
+
+
+    </Grid>
+</Window>

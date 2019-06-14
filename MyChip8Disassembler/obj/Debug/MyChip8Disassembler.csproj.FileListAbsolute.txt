@@ -1,0 +1,11 @@
+C:\Dev\mychip8\MyChip8Disassembler\bin\Debug\MyChip8Disassembler.exe.config
+C:\Dev\mychip8\MyChip8Disassembler\bin\Debug\MyChip8Disassembler.exe
+C:\Dev\mychip8\MyChip8Disassembler\bin\Debug\MyChip8Disassembler.pdb
+C:\Dev\mychip8\MyChip8Disassembler\bin\Debug\MyChip8.exe
+C:\Dev\mychip8\MyChip8Disassembler\bin\Debug\MyChip8.pdb
+C:\Dev\mychip8\MyChip8Disassembler\bin\Debug\MyChip8.exe.config
+C:\Dev\mychip8\MyChip8Disassembler\obj\Debug\MyChip8Disassembler.csprojAssemblyReference.cache
+C:\Dev\mychip8\MyChip8Disassembler\obj\Debug\MyChip8Disassembler.csproj.CoreCompileInputs.cache
+C:\Dev\mychip8\MyChip8Disassembler\obj\Debug\MyChip8Disassembler.csproj.CopyComplete
+C:\Dev\mychip8\MyChip8Disassembler\obj\Debug\MyChip8Disassembler.exe
+C:\Dev\mychip8\MyChip8Disassembler\obj\Debug\MyChip8Disassembler.pdb
