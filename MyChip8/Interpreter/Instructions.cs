@@ -14,14 +14,14 @@ namespace MyChip8.Interpreter
         public abstract class Instruction : IInstruction
         {
             protected ushort _originalOp;
-            protected ushort _parameter1;
-            protected ushort _parameter2;
+            protected Parameter<ushort> _parameter1;
+            protected Parameter<ushort> _parameter2;
 
             protected Instruction(ushort originalOp, ushort parameter1, ushort parameter2)
             {
                 _originalOp = originalOp;
-                _parameter1 = parameter1;
-                _parameter2 = parameter2;
+                _parameter1 = new Parameter<ushort>() {Value = parameter1};
+                _parameter2 = new Parameter<ushort>() {Value = parameter2};
             }
 
             public abstract override string ToString();
@@ -41,7 +41,7 @@ namespace MyChip8.Interpreter
 
             public override string ToString()
             {
-                throw new NotImplementedException();
+                return "SYS";
             }
 
             public override void Execute(CPU cpu)
@@ -58,7 +58,7 @@ namespace MyChip8.Interpreter
 
             public override string ToString()
             {
-                return ("CLS");
+                return "CLS";
             }
 
             public override void Execute(CPU cpu)
@@ -75,7 +75,7 @@ namespace MyChip8.Interpreter
 
             public override string ToString()
             {
-                return ("RET");
+                return "RET";
             }
 
             public override void Execute(CPU cpu)
@@ -115,10 +115,10 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x1:
-                        cpu.PC = _parameter1;
+                        cpu.PC = _parameter1.Value;
                         break;
                     case 0xB:
-                        cpu.PC = (byte)(_parameter1 + cpu.VRegisters[0]);
+                        cpu.PC = (byte)(_parameter1.Value + cpu.VRegisters[0]);
                         break;
                         //return (string.Format("JP V0, {0:x3}", _parameter1));
                     default:
@@ -147,9 +147,9 @@ namespace MyChip8.Interpreter
 
             public override void Execute(CPU cpu)
             {
-                cpu.Stack.Add(_parameter1);
+                cpu.Stack.Add(_parameter1.Value);
                 cpu.SP++;
-                cpu.PC = _parameter1;
+                cpu.PC = _parameter1.Value;
             }
             public override void Finalize(CPU cpu)
             {
@@ -172,9 +172,9 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x3:
-                        return (string.Format("SE V{0:x1}, {1:x2}", _parameter1, _parameter2));
+                        return ($"SE V{_parameter1:x1}, {_parameter2:x2}");
                     case 0x5:
-                        return (string.Format("SE V{0:x1}, V{1:x1}", _parameter1, _parameter2));
+                        return ($"SE V{_parameter1:x1}, V{_parameter2:x1}");
                     default:
                         return string.Empty;
                 }
@@ -185,11 +185,11 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x3:
-                        if (cpu.VRegisters[_parameter1] == _parameter2)
+                        if (cpu.VRegisters[_parameter1.Value] == _parameter2.Value)
                             cpu.PC += 0x2;
                         break;
                     case 0x5:
-                        if (cpu.VRegisters[_parameter1] == cpu.VRegisters[_parameter2])
+                        if (cpu.VRegisters[_parameter1.Value] == cpu.VRegisters[_parameter2.Value])
                             cpu.PC += 0x2;
                         break;
                     default:
@@ -213,9 +213,9 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x4:
-                        return (string.Format("SNE V{0:x1}, {1:x2}", _parameter1, _parameter2));
+                        return ($"SNE V{_parameter1:x1}, {_parameter2:x2}");
                     case 0x9:
-                        return (string.Format("SNE V{0:x1}, V{1:x1}", _parameter1, _parameter2));
+                        return ($"SNE V{_parameter1:x1}, V{_parameter2:x1}");
                     default:
                         return string.Empty;
                 }
@@ -226,11 +226,11 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x4:
-                    if (cpu.VRegisters[_parameter1] != _parameter2)
+                    if (cpu.VRegisters[_parameter1.Value] != _parameter2.Value)
                         cpu.PC += 0x2;
-                        break;
+                    break;
                     case 0x9:
-                        if (cpu.VRegisters[_parameter1] != cpu.VRegisters[_parameter2])
+                        if (cpu.VRegisters[_parameter1.Value] != cpu.VRegisters[_parameter2.Value])
                             cpu.PC += 0x2;
                         break;
                     default:
@@ -258,30 +258,30 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x6:
-                        return (string.Format("LD V{0:x1}, {1:x2}", _parameter1, _parameter2));
+                        return ($"LD V{_parameter1:x1}, {_parameter2:x2}");
                     case 0x8:
-                        return (string.Format("LD V{0:x1},V{1:x1}", _parameter1,_parameter2));
+                        return ($"LD V{_parameter1:x1},V{_parameter2:x1}");
                     case 0xA:
-                        return (string.Format("LD I, {0:x3}", _parameter1));
+                        return ($"LD I, {_parameter1:x3}");
                     case 0xF:
                         switch (_lowerNib)
                         {
                             case 0x07:
-                                return (string.Format("LD V{0:x1},DT", _parameter1));
+                                return ($"LD V{_parameter1:x1},DT");
                             case 0x0A:
-                                return (string.Format("LD V{0:x1},K", _parameter1));
+                                return ($"LD V{_parameter1:x1},K");
                             case 0x15:
-                                return (string.Format("LD DT,V{0:x1}", _parameter1));
+                                return ($"LD DT,V{_parameter1:x1}");
                             case 0x18:
-                                return (string.Format("LD ST,V{0:x1}", _parameter1));
+                                return ($"LD ST,V{_parameter1:x1}");
                             case 0x29:
-                                return (string.Format("LD F,V{0:x1}", _parameter1));
+                                return ($"LD F,V{_parameter1:x1}");
                             case 0x33:
-                                return (string.Format("LD B,V{0:x1}", _parameter1));
+                                return ($"LD B,V{_parameter1:x1}");
                             case 0x55:
-                                return (string.Format("LD [I],V{0:x1}", _parameter1));
+                                return ($"LD [I],V{_parameter1:x1}");
                             case 0x65:
-                                return (string.Format("LD V{0:x1}, [I]", _parameter1));
+                                return ($"LD V{_parameter1:x1}, [I]");
                             default:
                                 return string.Empty;
                         }
@@ -295,43 +295,43 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x6:
-                        cpu.VRegisters[_parameter1] = (byte)_parameter2;
+                        cpu.VRegisters[_parameter1.Value] = (byte)_parameter2.Value;
                         break;
                     case 0x8:
-                        cpu.VRegisters[_parameter1] = cpu.VRegisters[_parameter2];
+                        cpu.VRegisters[_parameter1.Value] = cpu.VRegisters[_parameter2.Value];
                         break;
                     case 0xA:
-                        cpu.I = _parameter1;
+                        cpu.I = _parameter1.Value;
                         break;
                     case 0xF:
                         switch (_lowerNib)
                         {
                             case 0x07:
-                                cpu.VRegisters[_parameter1] = cpu.DT;
+                                cpu.VRegisters[_parameter1.Value] = cpu.DT;
                                 break;
                             case 0x0A:
                                 // Do some input check here
                                 break;
                             case 0x15:
-                                cpu.DT = cpu.VRegisters[_parameter1];
+                                cpu.DT = cpu.VRegisters[_parameter1.Value];
                                 break;
                             case 0x18:
-                                cpu.ST = cpu.VRegisters[_parameter1];
+                                cpu.ST = cpu.VRegisters[_parameter1.Value];
                                 break;
                             case 0x29:
                                 // sprite shit
                                 break;
                             case 0x33:
-                                var hundredDigit = Math.Abs(_parameter1/100%10);
-                                var tensDigit = Math.Abs(_parameter1/10%10);
-                                var onesDigit = Math.Abs(_parameter1%10);
+                                var hundredDigit = Math.Abs(_parameter1.Value/100%10);
+                                var tensDigit = Math.Abs(_parameter1.Value/10%10);
+                                var onesDigit = Math.Abs(_parameter1.Value%10);
                                 cpu.SystemMemory.SetByteAtAddress(cpu.I,(byte)hundredDigit);
                                 cpu.SystemMemory.SetByteAtAddress(cpu.I+1, (byte)tensDigit);
                                 cpu.SystemMemory.SetByteAtAddress(cpu.I+2, (byte)onesDigit);
                                 break;
                             case 0x55:
                                 var address = cpu.I;
-                                for (var i = 0; i < _parameter1; i++)
+                                for (var i = 0; i < _parameter1.Value; i++)
                                 {
                                     cpu.SystemMemory.SetByteAtAddress(address,cpu.VRegisters[i]);
                                     address++;
@@ -339,7 +339,7 @@ namespace MyChip8.Interpreter
                                 break;
                             case 0x65:
                                 var addressToRead = cpu.I;
-                                for (var i = 0; i < _parameter1; i++)
+                                for (var i = 0; i < _parameter1.Value; i++)
                                 {
                                     cpu.VRegisters[i] = cpu.SystemMemory.ReadByteAtAddress(addressToRead);
                                     addressToRead++;
@@ -371,11 +371,11 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x7:
-                        return (string.Format("ADD V{0:x1}, {1:x2}", _parameter1, _parameter2));
+                        return ($"ADD V{_parameter1:x1}, {_parameter2:x2}");
                     case 0x8:
-                        return (string.Format("ADD V{0:x1},V{1:x1}", _parameter1, _parameter2));
+                        return ($"ADD V{_parameter1:x1},V{_parameter2:x1}");
                     case 0xF:
-                        return (string.Format("ADD I,V{0:x1}", _parameter1));    
+                        return ($"ADD I,V{_parameter1:x1}");    
                     default:
                         return string.Empty;
                 }
@@ -386,16 +386,16 @@ namespace MyChip8.Interpreter
                 switch (_upperNib)
                 {
                     case 0x7:
-                        cpu.VRegisters[_parameter1] += (byte) _parameter2;
+                        cpu.VRegisters[_parameter1.Value] += (byte) _parameter2.Value;
                         break;
                     case 0x8:
-                        ushort value = (ushort)(cpu.VRegisters[_parameter1] + cpu.VRegisters[_parameter2]);
+                        ushort value = (ushort)(cpu.VRegisters[_parameter1.Value] + cpu.VRegisters[_parameter2.Value]);
                         if (value > 0x255)
                             cpu.VRegisters[0xF] = 1;
-                        cpu.VRegisters[_parameter1] = (byte) value;
+                        cpu.VRegisters[_parameter1.Value] = (byte) value;
                         break;
                     case 0xF:
-                        cpu.I = (byte)(cpu.I + cpu.VRegisters[_parameter1]);
+                        cpu.I = (byte)(cpu.I + cpu.VRegisters[_parameter1.Value]);
                         break;
                     default:
                         break;
@@ -419,7 +419,7 @@ namespace MyChip8.Interpreter
 
             public override void Execute(CPU cpu)
             {
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter1] | cpu.VRegisters[_parameter2]);
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter1.Value] | cpu.VRegisters[_parameter2.Value]);
             }
         }
 
@@ -436,7 +436,7 @@ namespace MyChip8.Interpreter
 
             public override void Execute(CPU cpu)
             {
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter1] & cpu.VRegisters[_parameter2]);                    
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter1.Value] & cpu.VRegisters[_parameter2.Value]);                    
             }
         }
 
@@ -451,12 +451,12 @@ namespace MyChip8.Interpreter
 
             public override string ToString()
             {
-                return (string.Format("XOR V{0:x1},V{1:x1}", _parameter1, _parameter2));
+                return ($"XOR V{_parameter1:x1},V{_parameter2:x1}");
             }
 
             public override void Execute(CPU cpu)
             {
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter1] ^ cpu.VRegisters[_parameter2]);                    
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter1.Value] ^ cpu.VRegisters[_parameter2.Value]);                    
             }
         }
 
@@ -467,18 +467,22 @@ namespace MyChip8.Interpreter
         {
             public SUBInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
+                _parameter2.IsRegister = true;
+                _parameter2.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("SUB V{0:x1},V{1:x1}", _parameter1, _parameter2));
+                return ($"SUB V{_parameter1:x1},V{_parameter2:x1}");
             }
 
             public override void Execute(CPU cpu)
             {
-                if (cpu.VRegisters[_parameter1] > cpu.VRegisters[_parameter2])
+                if (cpu.VRegisters[_parameter1.Value] > cpu.VRegisters[_parameter2.Value])
                     cpu.VRegisters[0xF] = 1;
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter1] - cpu.VRegisters[_parameter2]);
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter1.Value] - cpu.VRegisters[_parameter2.Value]);
             }
         }
         /// <summary>
@@ -488,16 +492,20 @@ namespace MyChip8.Interpreter
         {
             public SHRInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
+                _parameter2.IsRegister = true;
+                _parameter2.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("SHR V{0:x1},V{1:x1}", _parameter1, _parameter2));
+                return ($"SHR V{_parameter1:x1},V{_parameter2:x1}");
             }
 
             public override void Execute(CPU cpu)
             {
-                if ((cpu.VRegisters[_parameter1] & 1) == 1)
+                if ((cpu.VRegisters[_parameter1.Value] & 1) == 1)
                 {
                     cpu.VRegisters[0xF] = 1;
                 }
@@ -505,7 +513,7 @@ namespace MyChip8.Interpreter
                 {
                     cpu.VRegisters[0xF] = 0;
                 }
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter1] >> 1);
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter1.Value] >> 1);
             }
         }
         /// <summary>
@@ -515,16 +523,20 @@ namespace MyChip8.Interpreter
         {
             public SUBNInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
+                _parameter2.IsRegister = true;
+                _parameter2.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("SUBN V{0:x1},V{1:x1}", _parameter1, _parameter2));
+                return ($"SUBN V{_parameter1:x1},V{_parameter2:x1}");
             }
 
             public override void Execute(CPU cpu)
             {
-                if (cpu.VRegisters[_parameter2] > cpu.VRegisters[_parameter1])
+                if (cpu.VRegisters[_parameter2.Value] > cpu.VRegisters[_parameter1.Value])
                 {
                     cpu.VRegisters[0xF] = 1;
                 }
@@ -532,7 +544,7 @@ namespace MyChip8.Interpreter
                 {
                     cpu.VRegisters[0xF] = 0;
                 }
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter2] - cpu.VRegisters[_parameter1]);
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter2.Value] - cpu.VRegisters[_parameter1.Value]);
             }
         }
         /// <summary>
@@ -542,16 +554,20 @@ namespace MyChip8.Interpreter
         {
             public SHLInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
+                _parameter2.IsRegister = true;
+                _parameter2.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("SHL V{0:x1},V{1:x1}", _parameter1, _parameter2));
+                return ($"SHL V{_parameter1:x1},V{_parameter2:x1}");
             }
 
             public override void Execute(CPU cpu)
             {
-                if (cpu.VRegisters[_parameter1] >> 3 == 1)
+                if (cpu.VRegisters[_parameter1.Value] >> 3 == 1)
                 {
                     cpu.VRegisters[0xF] = 1;
                 }
@@ -559,7 +575,7 @@ namespace MyChip8.Interpreter
                 {
                     cpu.VRegisters[0xF] = 0;
                 }
-                cpu.VRegisters[_parameter1] = (byte)(cpu.VRegisters[_parameter1] << 1);                    
+                cpu.VRegisters[_parameter1.Value] = (byte)(cpu.VRegisters[_parameter1.Value] << 1);                    
             }
         }
 
@@ -567,17 +583,19 @@ namespace MyChip8.Interpreter
         {
             public RNDInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("RND V{0:x1}, {1:x2}", _parameter1, _parameter2));
+                return ($"RND V{_parameter1:x1}, {_parameter2:x2}");
             }
 
             public override void Execute(CPU cpu)
             {
                 var random = (byte)new Random((int)DateTime.UtcNow.Ticks).Next(0,255);
-                cpu.VRegisters[_parameter1] = (byte) (random & _parameter2);
+                cpu.VRegisters[_parameter1.Value] = (byte) (random & _parameter2.Value);
             }
         }
 
@@ -593,7 +611,7 @@ namespace MyChip8.Interpreter
 
             public override string ToString()
             {
-                return (string.Format("DRW V{0:x1}, V{1:x1}, {2:x1}", _parameter1, _parameter2, _nibble));
+                return ($"DRW V{_parameter1:x1}, V{_parameter2:x1}, {_nibble:x1}");
             }
 
             public override void Execute(CPU cpu)
@@ -606,11 +624,13 @@ namespace MyChip8.Interpreter
         {
             public SKPInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("SKP V{0:x1}", _parameter1));
+                return ($"SKP V{_parameter1:x1}");
             }
 
             public override void Execute(CPU cpu)
@@ -624,11 +644,13 @@ namespace MyChip8.Interpreter
         {
             public SKNPInstruction(ushort originalOp, ushort parameter1, ushort parameter2) : base(originalOp, parameter1, parameter2)
             {
+                _parameter1.IsRegister = true;
+                _parameter1.RegisterType = RegisterTypes.V;
             }
 
             public override string ToString()
             {
-                return (string.Format("SKNP V{0:x1}", _parameter1));
+                return ($"SKNP V{_parameter1:x1}");
             }
 
             public override void Execute(CPU cpu)

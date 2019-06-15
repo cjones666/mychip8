@@ -9,10 +9,11 @@
         // 0x200 to 0xFFF - Program / Data Space
 
         private static byte[] _memory;
-
+        private readonly int _memorySize;
 
         public Memory(int memorySize)
         {
+            _memorySize = memorySize;
             _memory = new byte[memorySize];
             TotalMemory = memorySize;
         }
@@ -25,6 +26,11 @@
         public void SetByteAtAddress(int address, byte content)
         {
             _memory[address] = content;
+        }
+
+        public void Clear()
+        {
+            _memory = new byte[_memorySize];
         }
     }
 }

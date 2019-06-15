@@ -9,13 +9,16 @@ namespace MyChip8
 {
     public class Chip8System
     {
-        private CPU _cpu;
+        public const int MaxMemorySize = 4096;
+        public const int StartMemoryAddress = 0x200;
 
         public Memory Memory { get; private set; }
 
+        private CPU _cpu;
+
         public Chip8System()
         {
-            Memory = new Memory(4096);
+            Memory = new Memory(MaxMemorySize);
             _cpu = new CPU(Memory);
         }
 
@@ -25,9 +28,10 @@ namespace MyChip8
                 return false;
             if (programData.Length > Memory.TotalMemory)
                 return false;
+            Memory.Clear();
             for (var i = 0; i < programData.Length; i++)
             {
-                Memory.SetByteAtAddress(i + 0x200,programData[i]);
+                Memory.SetByteAtAddress(i + StartMemoryAddress,programData[i]);
             }
             return true;
         }
