@@ -46,6 +46,7 @@
     <Compile Include="Interpreter\InstructionHandler.cs" />
     <Compile Include="Interpreter\Instructions.cs" />
     <Compile Include="Interpreter\InstructionType.cs" />
+    <Compile Include="Interpreter\OpNames.cs" />
     <Compile Include="Interpreter\Parameter.cs" />
     <Compile Include="System\CPU.cs" />
     <Compile Include="System\Memory.cs" />

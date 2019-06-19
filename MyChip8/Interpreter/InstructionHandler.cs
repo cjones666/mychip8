@@ -10,31 +10,31 @@ namespace MyChip8.Interpreter
 {
     public class InstructionHandler
     {
-        private Dictionary<InstructionType, IInstruction> _opMap;
+        private Dictionary<InstructionType, IInstruction<ushort>> _opMap;
 
         public InstructionHandler()
         {
-            _opMap = new Dictionary<InstructionType, IInstruction>();
+            _opMap = new Dictionary<InstructionType, IInstruction<ushort>>();
             var opTypes = Enum.GetValues(typeof (InstructionType.Op));
             foreach (var instructionType in opTypes)
             {
                 var type = Type.GetType(instructionType + "Instruction");
                 if (type != null)
                 {
-                    var instructionInstance = Activator.CreateInstance(type) as IInstruction;
+                    var instructionInstance = Activator.CreateInstance(type) as IInstruction<ushort>;
                     _opMap.Add((InstructionType)instructionType,instructionInstance);
                 }
             }
         }
 
-        public static IInstruction GetInstruction(byte upperByte, byte lowerByte)
+        public static IInstruction<ushort> GetInstruction(byte upperByte, byte lowerByte)
         {
             var instructionBytes = (ushort)((upperByte) << 8 | (lowerByte));
             return GetInstruction(instructionBytes);
         }
 
         // The instruction ops in CHIP-8 are 2 bytes, thus we are passing in the op as a single 16-bit short integer.
-        public static IInstruction GetInstruction(ushort instructionBytes)
+        public static IInstruction<ushort> GetInstruction(ushort instructionBytes)
         {
             var upperNib = (instructionBytes >> 12) & 0x000F;
 
@@ -83,7 +83,7 @@ namespace MyChip8.Interpreter
                     register1 = (ushort) ((instructionBytes >> 8) & 0x000F);
                     register2 = (ushort) ((instructionBytes >> 4) & 0x000F);
                     var op = instructionBytes & 0x000F;
-                    var opCode = string.Empty;
+                    //var opCode = string.Empty;
                     switch (op)
                     {
                         case 0x0:
@@ -113,7 +113,7 @@ namespace MyChip8.Interpreter
                     return new Instructions.SNEInstruction(instructionBytes, register1, register2);
                 case 0xA:
                     addr = (ushort) (instructionBytes & 0x0FFF);
-                    return new Instructions.LDInstruction(instructionBytes,addr,0);
+                    return new Instructions.LDInstruction(instructionBytes,0,addr);
                 case 0xB:
                     addr = (ushort) (instructionBytes & 0x0FFF);
                     return new Instructions.JPInstruction(instructionBytes,addr,0);
@@ -141,15 +141,23 @@ namespace MyChip8.Interpreter
                 case 0xF:
                     register = (byte) ((instructionBytes >> 8) & 0x000F);
                     op = instructionBytes & 0x00FF;
-                    if (op == 0x07 || op == 0x0A || op == 0x15 || op == 0x18 || op == 0x29 || op == 0x33 || op == 0x55 || op == 0x65)
+                    switch (op)
                     {
-                        return new Instructions.LDInstruction(instructionBytes,register,0);
+                        case 0x07:
+                        case 0x0A:
+                        case 0x15:
+                        case 0x18:
+                        case 0x29:
+                        case 0x33:
+                        case 0x55:
+                        case 0x65:
+                            return new Instructions.LDInstruction(instructionBytes,register,0);
+                        case 0x1E:
+                            return new Instructions.ADDInstruction(instructionBytes,register,0);
+                        default:
+                            return null;
                     }
-                    if (op == 0x1E)
-                    {
-                        return new Instructions.ADDInstruction(instructionBytes,register,0);
-                    }
-                    return null;
+
                 default:
                     return null;
             }

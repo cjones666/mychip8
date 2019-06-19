@@ -12,12 +12,14 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="10"/>
             <RowDefinition Height="Auto"/>                                                                                                                                           
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -32,9 +34,7 @@
         <!-- Row2 -->
         <TextBlock Grid.Column="1" Grid.Row="2">Show Hex</TextBlock>
         <CheckBox Name="OnShowHexCheckBox" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"></CheckBox>
-
-        <DataGrid x:Name="ProgramInstructions"  Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="4" ></DataGrid>
-
+        <DataGrid x:Name="ProgramInstructions" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="True" />
 
     </Grid>
 </Window>

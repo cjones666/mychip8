@@ -34,9 +34,9 @@ namespace MyChip8Disassembler.Disassembler
             return _chip8.LoadProgram(fileBytes);
         }
 
-        public Dictionary<int,IInstruction> GetProgram(string path)
+        public Dictionary<int,IInstruction<ushort>> GetProgram(string path)
         {
-            var instructions = new Dictionary<int,IInstruction>();
+            var instructions = new Dictionary<int,IInstruction<ushort>>();
 
             var success = LoadProgram(path);
             if (!success)
@@ -53,7 +53,6 @@ namespace MyChip8Disassembler.Disassembler
                 instructions.Add(i,instruction);
                 //Console.WriteLine("0x{0:x3} {1:x2} {2:x2}  {3}", i, currentByte, nextByte, instruction); 
             }
-
             return instructions;
         }
     }

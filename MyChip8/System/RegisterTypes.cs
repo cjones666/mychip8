@@ -2,6 +2,7 @@
 {
     public enum RegisterTypes
     {
+        None = 0,
         V,
         DT,
         ST,

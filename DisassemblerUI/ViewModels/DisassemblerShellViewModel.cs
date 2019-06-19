@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Security.RightsManagement;
@@ -43,6 +44,7 @@ namespace DisassemblerUI.ViewModels
         public DisassemblerShellViewModel()
         {
             _disassembler = new Disassembler();
+            ProgramInstructions = new BindableCollection<InstructionModel>();
         }
 
         public void OnLoadFileButton()
@@ -51,19 +53,18 @@ namespace DisassemblerUI.ViewModels
             {
                 // Show the file picker
                 var fileDialog = new OpenFileDialog {CheckFileExists = true, CheckPathExists = true};
-                if (fileDialog.ShowDialog() == true)
-                {
-                    // Load the file
-                    FileName = fileDialog.FileName;
-                    ProgramInstructions = _disassembler.GetProgram(FileName);
-                }
+                if (fileDialog.ShowDialog() != true) 
+                    return;
+                // Load the file
+                FileName = fileDialog.FileName;
+                PopulateInstructionModel(FileName);
             }
             else
             {
                 if (File.Exists(FileName))
                 {
                     // Do a check here with the disassemble to determine that this is a valid chip 8 file
-                    ProgramInstructions = _disassembler.GetProgram(FileName);
+                    PopulateInstructionModel(FileName);
                 }
                 else
                 {   
@@ -71,7 +72,17 @@ namespace DisassemblerUI.ViewModels
                     MessageBox.Show("File does not exit");
                     FileName = string.Empty;
                 }
+            }
+        }
 
+        private void PopulateInstructionModel(string fileName)
+        {
+            var instructions = _disassembler.GetProgram(fileName);
+            ProgramInstructions.Clear();
+            foreach (var instruction in instructions)
+            {
+                var instructionModel = InstructionModel.GetModel(instruction.Key, instruction.Value);
+                ProgramInstructions.Add(instructionModel);
             }
         }
 
