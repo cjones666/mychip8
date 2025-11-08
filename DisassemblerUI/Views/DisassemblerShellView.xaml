@@ -4,37 +4,54 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DisassemblerUI"
-        mc:Ignorable="d" FontSize="18" FontFamily="Segoe UI Light"
-        Title="MyChip8 Disassembler" Height="450" Width="800" >
+        mc:Ignorable="d" FontSize="12" FontFamily="Segoe UI"
+        Title="MyChip8 Disassembler" Height="600" Width="1000"
+        KeyDown="Window_KeyDown">
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="10"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"/>
-            <RowDefinition Height="Auto"/>                                                                                                                                           
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
-        <!-- Row1 -->
-        <TextBlock Grid.Column="1" Grid.Row="1" Margin="0,0,0,0" Text="File:"/>
-        <TextBox Name="FileName" Grid.Column="2" Grid.Row="1" Margin="10,0,10,0" Width="100"/>
-        <Button Name="OnLoadFileButton" Grid.Column="3" Grid.Row="1"  Content="Load" Width="50"></Button>
 
-        <!-- Row2 -->
-        <TextBlock Grid.Column="1" Grid.Row="2">Show Hex</TextBlock>
-        <CheckBox Name="OnShowHexCheckBox" Grid.Column="2" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"></CheckBox>
-        <DataGrid x:Name="ProgramInstructions" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="True" />
+        <!-- Toolbar -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10" Background="#F0F0F0" Padding="10" Height="50">
+            <TextBlock Text="File:" VerticalAlignment="Center" Margin="0,0,10,0" FontWeight="Bold"/>
+            <TextBox Name="FileName" Width="400" VerticalAlignment="Center" Margin="0,0,10,0" Padding="5"/>
+            <Button Name="OnLoadFileButton" Content="Load ROM" Width="100" Padding="5,10" Margin="0,0,20,0"/>
 
+            <Separator Width="2" Background="#CCCCCC" Margin="10,0"/>
+
+            <TextBlock Text="Show Hex:" VerticalAlignment="Center" Margin="10,0,10,0" FontWeight="Bold"/>
+            <CheckBox Name="ShowHex" VerticalAlignment="Center" Margin="0,0,20,0"/>
+        </StackPanel>
+
+        <!-- Instruction Grid -->
+        <DataGrid x:Name="ProgramInstructions"
+                  Grid.Row="2"
+                  Margin="10"
+                  VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Auto"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  GridLinesVisibility="All"
+                  BorderThickness="1"
+                  BorderBrush="#CCCCCC">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Address" Binding="{Binding AddressDisplay}" Width="80" FontFamily="Consolas"/>
+                <DataGridTextColumn Header="Operation" Binding="{Binding Operation}" Width="100"/>
+                <DataGridTextColumn Header="Parameter 1" Binding="{Binding Parameter1}" Width="100"/>
+                <DataGridTextColumn Header="Parameter 2" Binding="{Binding Parameter2}" Width="100"/>
+                <DataGridTextColumn Header="Parameter 3" Binding="{Binding Parameter3}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Status Bar -->
+        <StatusBar Grid.Row="3" Background="#F0F0F0" Padding="10,5">
+            <TextBlock Name="StatusMessage" Text="{Binding StatusMessage}" Foreground="#333333"/>
+        </StatusBar>
     </Grid>
 </Window>
