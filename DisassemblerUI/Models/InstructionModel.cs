@@ -1,51 +1,48 @@
-﻿using System;
 using MyChip8.Interpreter;
 
-namespace DisassemblerUI.Models
+namespace DisassemblerUI.Models;
+
+public class InstructionModel
 {
-    public class InstructionModel
+    // Display properties
+    public string AddressDisplay { get; set; } = string.Empty;
+    public string Operation { get; set; } = string.Empty;
+    public string Parameter1 { get; set; } = string.Empty;
+    public string Parameter2 { get; set; } = string.Empty;
+    public string Parameter3 { get; set; } = string.Empty;
+
+    // Internal storage for non-hex display
+    public int Address { get; set; }
+    private Parameter<ushort>?[] _parameters = new Parameter<ushort>?[3];
+
+    public static InstructionModel GetModel(int address, IInstruction<ushort> instruction)
     {
-        // Display properties
-        public string AddressDisplay { get; set; }
-        public string Operation { get; set; }
-        public string Parameter1 { get; set; }
-        public string Parameter2 { get; set; }
-        public string Parameter3 { get; set; }
-
-        // Internal storage for non-hex display
-        public int Address { get; set; }
-        private IParameter[] _parameters;
-
-        public static InstructionModel GetModel(int address, IInstruction<ushort> instruction)
+        var model = new InstructionModel
         {
-            var model = new InstructionModel
-            {
-                Address = address,
-                AddressDisplay = $"0x{address:X3}",
-                Operation = instruction.Name,
-                _parameters = new IParameter[3]
-            };
+            Address = address,
+            AddressDisplay = $"0x{address:X3}",
+            Operation = instruction.Name
+        };
 
-            // Store parameters for later toggling
-            for (int i = 0; i < 3; i++)
-            {
-                model._parameters[i] = instruction.GetParameter(i);
-            }
-
-            // Initial display with decimal format
-            model.UpdateParameterDisplay(false);
-
-            return model;
+        // Store parameters for later toggling
+        for (int i = 0; i < 3; i++)
+        {
+            model._parameters[i] = instruction.GetParameter(i);
         }
 
-        /// <summary>
-        /// Updates parameter display between hex and decimal formats.
-        /// </summary>
-        public void UpdateParameterDisplay(bool useHex)
-        {
-            Parameter1 = _parameters[0] != null ? _parameters[0].GetString(useHex) : "";
-            Parameter2 = _parameters[1] != null ? _parameters[1].GetString(useHex) : "";
-            Parameter3 = _parameters[2] != null ? _parameters[2].GetString(useHex) : "";
-        }
+        // Initial display with decimal format
+        model.UpdateParameterDisplay(false);
+
+        return model;
+    }
+
+    /// <summary>
+    /// Updates parameter display between hex and decimal formats.
+    /// </summary>
+    public void UpdateParameterDisplay(bool useHex)
+    {
+        Parameter1 = _parameters[0]?.GetString(useHex) ?? string.Empty;
+        Parameter2 = _parameters[1]?.GetString(useHex) ?? string.Empty;
+        Parameter3 = _parameters[2]?.GetString(useHex) ?? string.Empty;
     }
 }

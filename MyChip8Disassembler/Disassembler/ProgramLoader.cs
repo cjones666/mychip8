@@ -1,12 +1,7 @@
-﻿using System.IO;
+namespace MyChip8Disassembler.Disassembler;
 
-namespace MyChip8Disassembler.Disassembler
+public static class ProgramLoader
 {
-    public class ProgramLoader
-    {
-        public static byte[] Load(string fileName)
-        {
-            return !File.Exists(fileName) ? new byte[4096] : File.ReadAllBytes(fileName);
-        }
-    }
+    public static byte[] Load(string fileName) =>
+        !File.Exists(fileName) ? new byte[4096] : File.ReadAllBytes(fileName);
 }
