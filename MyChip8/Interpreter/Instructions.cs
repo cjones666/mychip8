@@ -260,7 +260,6 @@ namespace MyChip8.Interpreter
                     default:
                         break;
                 }
-                throw new NotImplementedException();
             }
         }
         /// <summary>
