@@ -1,69 +1,64 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using Caliburn.Micro;
 using DisassemblerUI.Models;
 using Microsoft.Win32;
 using MyChip8Disassembler.Disassembler;
 
-namespace DisassemblerUI.ViewModels
+namespace DisassemblerUI.ViewModels;
+
+public class DisassemblerShellViewModel : Screen
 {
-    public class DisassemblerShellViewModel : Screen
+    private BindableCollection<InstructionModel> _programInstructions = [];
+    public BindableCollection<InstructionModel> ProgramInstructions
     {
-        private BindableCollection<InstructionModel> _programInstructions;
-        public BindableCollection<InstructionModel> ProgramInstructions
+        get => _programInstructions;
+        set
         {
-            get { return _programInstructions; }
-            set
-            {
-                _programInstructions = value;
-                NotifyOfPropertyChange(() => ProgramInstructions);
-            }
+            _programInstructions = value;
+            NotifyOfPropertyChange(() => ProgramInstructions);
         }
+    }
 
-        private string _fileName;
-        public string FileName
+    private string _fileName = string.Empty;
+    public string FileName
+    {
+        get => _fileName;
+        set
         {
-            get => _fileName;
-            set
-            {
-                _fileName = value;
-                NotifyOfPropertyChange(() => FileName);
-            }
+            _fileName = value;
+            NotifyOfPropertyChange(() => FileName);
         }
+    }
 
-        private bool _showHex;
-        public bool ShowHex
+    private bool _showHex;
+    public bool ShowHex
+    {
+        get => _showHex;
+        set
         {
-            get => _showHex;
-            set
-            {
-                _showHex = value;
-                NotifyOfPropertyChange(() => ShowHex);
-                UpdateParameterDisplay();
-            }
+            _showHex = value;
+            NotifyOfPropertyChange(() => ShowHex);
+            UpdateParameterDisplay();
         }
+    }
 
-        private string _statusMessage;
-        public string StatusMessage
+    private string _statusMessage = "Ready. Load a ROM file to begin.";
+    public string StatusMessage
+    {
+        get => _statusMessage;
+        set
         {
-            get => _statusMessage;
-            set
-            {
-                _statusMessage = value;
-                NotifyOfPropertyChange(() => StatusMessage);
-            }
+            _statusMessage = value;
+            NotifyOfPropertyChange(() => StatusMessage);
         }
+    }
 
-        private Disassembler _disassembler;
+    private readonly Disassembler _disassembler = new();
 
-        public DisassemblerShellViewModel()
-        {
-            _disassembler = new Disassembler();
-            ProgramInstructions = new BindableCollection<InstructionModel>();
-            StatusMessage = "Ready. Load a ROM file to begin.";
-            _showHex = false;
-        }
+    public DisassemblerShellViewModel()
+    {
+    }
 
         public void OnLoadFileButton()
         {
