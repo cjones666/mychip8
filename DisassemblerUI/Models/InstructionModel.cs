@@ -1,40 +1,51 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MyChip8.Interpreter;
 
 namespace DisassemblerUI.Models
 {
     public class InstructionModel
     {
-        public int Address { get; set; }
+        // Display properties
+        public string AddressDisplay { get; set; }
         public string Operation { get; set; }
         public string Parameter1 { get; set; }
         public string Parameter2 { get; set; }
         public string Parameter3 { get; set; }
 
+        // Internal storage for non-hex display
+        public int Address { get; set; }
+        private IParameter[] _parameters;
 
         public static InstructionModel GetModel(int address, IInstruction<ushort> instruction)
         {
             var model = new InstructionModel
             {
                 Address = address,
-                Operation = instruction.Name
+                AddressDisplay = $"0x{address:X3}",
+                Operation = instruction.Name,
+                _parameters = new IParameter[3]
             };
 
-            var parameter1 = instruction.GetParameter(0);
-            if (parameter1 != null)
-                model.Parameter1 = parameter1.GetString(false); 
-            var parameter2 = instruction.GetParameter(1);
-            if (parameter2 != null)
-                model.Parameter2 = parameter2.GetString(false);
-            var parameter3 = instruction.GetParameter(2);
-            if (parameter3 != null)
-                model.Parameter3 = parameter3.GetString(false);
+            // Store parameters for later toggling
+            for (int i = 0; i < 3; i++)
+            {
+                model._parameters[i] = instruction.GetParameter(i);
+            }
+
+            // Initial display with decimal format
+            model.UpdateParameterDisplay(false);
 
             return model;
+        }
+
+        /// <summary>
+        /// Updates parameter display between hex and decimal formats.
+        /// </summary>
+        public void UpdateParameterDisplay(bool useHex)
+        {
+            Parameter1 = _parameters[0] != null ? _parameters[0].GetString(useHex) : "";
+            Parameter2 = _parameters[1] != null ? _parameters[1].GetString(useHex) : "";
+            Parameter3 = _parameters[2] != null ? _parameters[2].GetString(useHex) : "";
         }
     }
 }
