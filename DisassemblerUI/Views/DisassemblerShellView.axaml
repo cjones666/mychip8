@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:DisassemblerUI.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="600"
+        x:Class="DisassemblerUI.Views.DisassemblerShellView"
+        x:DataType="vm:DisassemblerShellViewModel"
+        FontSize="14" FontFamily="Inter"
+        Title="MyChip8 Disassembler"
+        Width="1000" Height="600"
+        Background="#1E1E1E">
+
+    <Window.Styles>
+        <Style Selector="DataGrid">
+            <Setter Property="Background" Value="#252526"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style Selector="DataGridColumnHeader">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style Selector="DataGridRow">
+            <Setter Property="Background" Value="#252526"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+        </Style>
+        <Style Selector="DataGridRow:nth-child(2n)">
+            <Setter Property="Background" Value="#2D2D30"/>
+        </Style>
+        <Style Selector="DataGridRow:selected /template/ Rectangle#BackgroundRectangle">
+            <Setter Property="Fill" Value="#007ACC"/>
+            <Setter Property="Opacity" Value="0.4"/>
+        </Style>
+        <Style Selector="DataGridRow:pointerover /template/ Rectangle#BackgroundRectangle">
+            <Setter Property="Fill" Value="#3E3E42"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+        <Style Selector="CheckBox /template/ Border">
+            <Setter Property="BorderBrush" Value="#6E6E6E"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="CornerRadius" Value="3"/>
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+        </Style>
+        <Style Selector="CheckBox:checked /template/ Border">
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+            <Setter Property="Background" Value="#007ACC"/>
+        </Style>
+        <Style Selector="CheckBox:pointerover /template/ Border">
+            <Setter Property="BorderBrush" Value="#9E9E9E"/>
+        </Style>
+        <Style Selector="CheckBox /template/ Path">
+            <Setter Property="Stroke" Value="#FFFFFF"/>
+            <Setter Property="StrokeThickness" Value="2.5"/>
+        </Style>
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#3C3C3C"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style Selector="TextBox:focus">
+            <Setter Property="BorderBrush" Value="#007ACC"/>
+        </Style>
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto" Background="#1E1E1E">
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Background="#2D2D30" BorderBrush="#3E3E42" BorderThickness="0,0,0,1" Padding="15">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="File:" VerticalAlignment="Center" Margin="0,0,5,0" FontWeight="SemiBold" Foreground="#E0E0E0"/>
+                <TextBox Name="FileName" Width="450" VerticalAlignment="Center" Padding="8,6"
+                         Text="{Binding FileName}"/>
+                <Button Name="OnLoadFileButton" Content="Load ROM" Padding="12,8" Margin="5,0,0,0"
+                        Click="OnLoadFileButton_Click"
+                        Background="#007ACC"
+                        Foreground="#FFFFFF"
+                        BorderBrush="#007ACC"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        FontWeight="Medium"/>
+
+                <Rectangle Width="1" Fill="#555555" Margin="15,0"/>
+
+                <TextBlock Text="Show Hex:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold" Foreground="#E0E0E0"/>
+                <CheckBox Name="ShowHex" VerticalAlignment="Center" Margin="0,0,10,0"
+                          IsChecked="{Binding ShowHex}"
+                          MinWidth="24" MinHeight="24"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Instruction Grid -->
+        <DataGrid x:Name="ProgramInstructions"
+                  Grid.Row="1"
+                  Margin="15"
+                  AutoGenerateColumns="False"
+                  IsReadOnly="True"
+                  CanUserReorderColumns="False"
+                  CanUserResizeColumns="True"
+                  CanUserSortColumns="False"
+                  GridLinesVisibility="Horizontal"
+                  BorderThickness="1"
+                  BorderBrush="#3E3E42"
+                  CornerRadius="4"
+                  ItemsSource="{Binding ProgramInstructions}"
+                  HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Address" Binding="{Binding AddressDisplay}" Width="120" FontFamily="Consolas" FontSize="14"/>
+                <DataGridTextColumn Header="Operation" Binding="{Binding Operation}" Width="150" FontFamily="Consolas" FontSize="14"/>
+                <DataGridTextColumn Header="Parameter 1" Binding="{Binding Parameter1}" Width="150" FontFamily="Consolas" FontSize="14"/>
+                <DataGridTextColumn Header="Parameter 2" Binding="{Binding Parameter2}" Width="150" FontFamily="Consolas" FontSize="14"/>
+                <DataGridTextColumn Header="Parameter 3" Binding="{Binding Parameter3}" Width="150" FontFamily="Consolas" FontSize="14"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#2D2D30" BorderBrush="#3E3E42" BorderThickness="0,1,0,0" Padding="15,10">
+            <TextBlock Name="StatusMessage" Text="{Binding StatusMessage}" Foreground="#9CDCFE" FontSize="13"/>
+        </Border>
+    </Grid>
+</Window>
