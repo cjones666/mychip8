@@ -1,22 +1,31 @@
-﻿using System.IO;
-using System.Windows;
-using Caliburn.Micro;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.CompilerServices;
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
 using DisassemblerUI.Models;
-using Microsoft.Win32;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using MyChip8Disassembler.Disassembler;
 
 namespace DisassemblerUI.ViewModels;
 
-public class DisassemblerShellViewModel : Screen
+public class DisassemblerShellViewModel : INotifyPropertyChanged
 {
-    private BindableCollection<InstructionModel> _programInstructions = [];
-    public BindableCollection<InstructionModel> ProgramInstructions
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private ObservableCollection<InstructionModel> _programInstructions = [];
+    public ObservableCollection<InstructionModel> ProgramInstructions
     {
         get => _programInstructions;
         set
         {
-            _programInstructions = value;
-            NotifyOfPropertyChange(() => ProgramInstructions);
+            if (_programInstructions != value)
+            {
+                _programInstructions = value;
+                OnPropertyChanged();
+            }
         }
     }
 
@@ -26,8 +35,11 @@ public class DisassemblerShellViewModel : Screen
         get => _fileName;
         set
         {
-            _fileName = value;
-            NotifyOfPropertyChange(() => FileName);
+            if (_fileName != value)
+            {
+                _fileName = value;
+                OnPropertyChanged();
+            }
         }
     }
 
@@ -37,9 +49,12 @@ public class DisassemblerShellViewModel : Screen
         get => _showHex;
         set
         {
-            _showHex = value;
-            NotifyOfPropertyChange(() => ShowHex);
-            UpdateParameterDisplay();
+            if (_showHex != value)
+            {
+                _showHex = value;
+                OnPropertyChanged();
+                UpdateParameterDisplay();
+            }
         }
     }
 
@@ -49,91 +64,113 @@ public class DisassemblerShellViewModel : Screen
         get => _statusMessage;
         set
         {
-            _statusMessage = value;
-            NotifyOfPropertyChange(() => StatusMessage);
+            if (_statusMessage != value)
+            {
+                _statusMessage = value;
+                OnPropertyChanged();
+            }
         }
     }
 
     private readonly Disassembler _disassembler = new();
+    private Window? _window;
 
     public DisassemblerShellViewModel()
     {
     }
 
-        public void OnLoadFileButton()
+    public void SetWindow(Window window)
+    {
+        _window = window;
+    }
+
+    public async void OnLoadFileButton()
+    {
+        try
         {
-            try
+            if (string.IsNullOrEmpty(FileName))
             {
-                if (string.IsNullOrEmpty(FileName))
-                {
-                    // Show the file picker
-                    var fileDialog = new OpenFileDialog
-                    {
-                        CheckFileExists = true,
-                        CheckPathExists = true,
-                        Filter = "CHIP-8 ROM files (*.ch8;*.bin)|*.ch8;*.bin|All files (*.*)|*.*",
-                        Title = "Open CHIP-8 ROM"
-                    };
+                // Show the file picker
+                if (_window == null)
+                    return;
 
-                    if (fileDialog.ShowDialog() != true)
-                        return;
-
-                    FileName = fileDialog.FileName;
-                }
-                else
+                var files = await _window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
                 {
-                    if (!File.Exists(FileName))
+                    Title = "Open CHIP-8 ROM",
+                    AllowMultiple = false,
+                    FileTypeFilter = new[]
                     {
-                        MessageBox.Show("File does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                        FileName = string.Empty;
-                        return;
+                        new FilePickerFileType("CHIP-8 ROM files")
+                        {
+                            Patterns = new[] { "*.ch8", "*.bin" }
+                        },
+                        FilePickerFileTypes.All
                     }
+                });
+
+                if (files.Count == 0)
+                    return;
+
+                FileName = files[0].Path.LocalPath;
+            }
+            else
+            {
+                if (!File.Exists(FileName))
+                {
+                    await ShowError("File does not exist.", "Error");
+                    FileName = string.Empty;
+                    return;
                 }
+            }
 
-                PopulateInstructionModel(FileName);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed to load file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                StatusMessage = "Error loading file.";
-            }
+            PopulateInstructionModel(FileName);
         }
-
-        private void PopulateInstructionModel(string fileName)
+        catch (Exception ex)
         {
-            StatusMessage = "Loading ROM...";
-
-            var instructions = _disassembler.GetProgram(fileName);
-
-            if (!string.IsNullOrEmpty(_disassembler.LastError))
-            {
-                MessageBox.Show(_disassembler.LastError, "Disassembly Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                StatusMessage = "Error disassembling ROM.";
-                return;
-            }
-
-            ProgramInstructions.Clear();
-            foreach (var instruction in instructions)
-            {
-                var instructionModel = InstructionModel.GetModel(instruction.Key, instruction.Value);
-                ProgramInstructions.Add(instructionModel);
-            }
-
-            StatusMessage = $"Loaded {instructions.Count} instructions from {Path.GetFileName(fileName)}";
+            await ShowError($"Failed to load file: {ex.Message}", "Error");
+            StatusMessage = "Error loading file.";
         }
+    }
 
-        private void UpdateParameterDisplay()
+    private async void PopulateInstructionModel(string fileName)
+    {
+        StatusMessage = "Loading ROM...";
+
+        var instructions = _disassembler.GetProgram(fileName);
+
+        if (!string.IsNullOrEmpty(_disassembler.LastError))
         {
-            foreach (var instruction in ProgramInstructions)
-            {
-                instruction.UpdateParameterDisplay(_showHex);
-            }
+            await ShowError(_disassembler.LastError, "Disassembly Error");
+            StatusMessage = "Error disassembling ROM.";
+            return;
         }
 
-        public void OnShowHexCheckBox()
+        ProgramInstructions.Clear();
+        foreach (var instruction in instructions)
         {
-            // This method is called by Caliburn when the checkbox changes
-            // The ShowHex property setter handles the update
+            var instructionModel = InstructionModel.GetModel(instruction.Key, instruction.Value);
+            ProgramInstructions.Add(instructionModel);
         }
+
+        StatusMessage = $"Loaded {instructions.Count} instructions from {Path.GetFileName(fileName)}";
+    }
+
+    private void UpdateParameterDisplay()
+    {
+        foreach (var instruction in ProgramInstructions)
+        {
+            instruction.UpdateParameterDisplay(_showHex);
+        }
+    }
+
+    private async Task ShowError(string message, string title)
+    {
+        var box = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.Ok, Icon.Error);
+        await box.ShowAsync();
+    }
+
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
