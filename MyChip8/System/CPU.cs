@@ -7,6 +7,8 @@ public class CPU
     private Timer? _cpuThread;
     private Timer? _timerThread;
     private long _lastTimerUpdate;
+    private const int CpuFrequencyHz = 500; // CHIP-8 runs at ~500-700 Hz
+    private const int CpuIntervalMs = 2; // ~500 Hz
     private const int TimerFrequencyHz = 60;
     private const int TimerIntervalMs = 1000 / TimerFrequencyHz; // ~16.67ms
 
@@ -54,7 +56,7 @@ public class CPU
 
     public void Start()
     {
-        _cpuThread = new Timer(Update, this, 0, 1000);
+        _cpuThread = new Timer(Update, this, 0, CpuIntervalMs);
         _timerThread = new Timer(UpdateTimers, this, 0, TimerIntervalMs);
         _lastTimerUpdate = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
     }
