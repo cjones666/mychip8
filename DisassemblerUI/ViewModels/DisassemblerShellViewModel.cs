@@ -1,7 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using DisassemblerUI.Models;
@@ -88,42 +90,40 @@ public class DisassemblerShellViewModel : INotifyPropertyChanged
     {
         try
         {
-            if (string.IsNullOrEmpty(FileName))
-            {
-                // Show the file picker
-                if (_window == null)
-                    return;
+            string? fileToLoad = null;
 
-                var files = await _window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            // Always show the file picker when button is clicked
+            if (_window == null)
+                return;
+
+            var files = await _window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+            {
+                Title = "Open CHIP-8 ROM",
+                AllowMultiple = false,
+                FileTypeFilter = new[]
                 {
-                    Title = "Open CHIP-8 ROM",
-                    AllowMultiple = false,
-                    FileTypeFilter = new[]
+                    new FilePickerFileType("CHIP-8 ROM files")
                     {
-                        new FilePickerFileType("CHIP-8 ROM files")
-                        {
-                            Patterns = new[] { "*.ch8", "*.bin" }
-                        },
-                        FilePickerFileTypes.All
-                    }
-                });
-
-                if (files.Count == 0)
-                    return;
-
-                FileName = files[0].Path.LocalPath;
-            }
-            else
-            {
-                if (!File.Exists(FileName))
-                {
-                    await ShowError("File does not exist.", "Error");
-                    FileName = string.Empty;
-                    return;
+                        Patterns = new[] { "*.ch8", "*.bin" }
+                    },
+                    FilePickerFileTypes.All
                 }
+            });
+
+            if (files.Count == 0)
+                return;
+
+            fileToLoad = files[0].Path.LocalPath;
+            FileName = fileToLoad;
+
+            if (!File.Exists(fileToLoad))
+            {
+                await ShowError("File does not exist.", "Error");
+                FileName = string.Empty;
+                return;
             }
 
-            PopulateInstructionModel(FileName);
+            PopulateInstructionModel(fileToLoad);
         }
         catch (Exception ex)
         {
@@ -146,6 +146,7 @@ public class DisassemblerShellViewModel : INotifyPropertyChanged
         }
 
         ProgramInstructions.Clear();
+
         foreach (var instruction in instructions)
         {
             var instructionModel = InstructionModel.GetModel(instruction.Key, instruction.Value);

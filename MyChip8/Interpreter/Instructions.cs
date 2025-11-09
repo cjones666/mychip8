@@ -47,7 +47,7 @@ public static class Instructions
     {
         public override string ToString() => "CLS";
 
-        public override void Execute(CPU cpu) => throw new NotImplementedException();
+        public override void Execute(CPU cpu) => cpu.Display.Clear();
     }
 
     public class RETInstruction(ushort originalOp, ushort parameter1, ushort parameter2)
@@ -292,7 +292,9 @@ public static class Instructions
                             cpu.VRegisters[GetParameter(0)!.Value] = cpu.DT;
                             break;
                         case 0x0A:
-                            // Do some input check here
+                            // Wait for key press
+                            cpu.WaitingForKey = true;
+                            cpu.WaitingKeyRegister = (byte)GetParameter(0)!.Value;
                             break;
                         case 0x15:
                             cpu.DT = cpu.VRegisters[GetParameter(0)!.Value];
@@ -301,15 +303,18 @@ public static class Instructions
                             cpu.ST = cpu.VRegisters[GetParameter(0)!.Value];
                             break;
                         case 0x29:
-                            // sprite shit
+                            // Set I to location of font sprite for digit VX
+                            var digit = cpu.VRegisters[GetParameter(0)!.Value];
+                            cpu.I = (ushort)FontData.GetFontAddress(digit);
                             break;
                         case 0x33:
-                            var hundredDigit = Math.Abs(GetParameter(0)!.Value/100%10);
-                            var tensDigit = Math.Abs(GetParameter(0)!.Value/10%10);
-                            var onesDigit = Math.Abs(GetParameter(0)!.Value%10);
-                            cpu.SystemMemory.SetByteAtAddress(cpu.I,(byte)hundredDigit);
-                            cpu.SystemMemory.SetByteAtAddress(cpu.I+1, (byte)tensDigit);
-                            cpu.SystemMemory.SetByteAtAddress(cpu.I+2, (byte)onesDigit);
+                            var vxValue = cpu.VRegisters[GetParameter(0)!.Value];
+                            var hundredDigit = vxValue / 100;
+                            var tensDigit = (vxValue / 10) % 10;
+                            var onesDigit = vxValue % 10;
+                            cpu.SystemMemory.SetByteAtAddress(cpu.I, (byte)hundredDigit);
+                            cpu.SystemMemory.SetByteAtAddress(cpu.I + 1, (byte)tensDigit);
+                            cpu.SystemMemory.SetByteAtAddress(cpu.I + 2, (byte)onesDigit);
                             break;
                         case 0x55:
                             var address = cpu.I;
@@ -550,7 +555,8 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            if (cpu.VRegisters[GetParameter(0)!.Value] >> 3 == 1)
+            // Check MSB (bit 7) before shift
+            if ((cpu.VRegisters[GetParameter(0)!.Value] & 0x80) != 0)
             {
                 cpu.VRegisters[0xF] = 1;
             }
@@ -597,7 +603,20 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            throw new NotImplementedException();
+            // Get coordinates from registers
+            int x = cpu.VRegisters[GetParameter(0)!.Value];
+            int y = cpu.VRegisters[GetParameter(1)!.Value];
+
+            // Read sprite data from memory starting at address I
+            byte[] spriteData = new byte[_nibble];
+            for (int i = 0; i < _nibble; i++)
+            {
+                spriteData[i] = cpu.SystemMemory.ReadByteAtAddress(cpu.I + i);
+            }
+
+            // Draw sprite and set VF to collision flag
+            bool collision = cpu.Display.DrawSprite(x, y, spriteData);
+            cpu.VRegisters[0xF] = collision ? (byte)1 : (byte)0;
         }
     }
 
@@ -614,8 +633,12 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            // Do some keyboard check here
-
+            // Skip next instruction if key stored in VX is pressed
+            byte key = cpu.VRegisters[GetParameter(0)!.Value];
+            if (cpu.Input.IsKeyPressed(key))
+            {
+                cpu.PC += 0x2;
+            }
         }
     }
 
@@ -632,7 +655,12 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            // Do some keyboard check here
+            // Skip next instruction if key stored in VX is NOT pressed
+            byte key = cpu.VRegisters[GetParameter(0)!.Value];
+            if (!cpu.Input.IsKeyPressed(key))
+            {
+                cpu.PC += 0x2;
+            }
         }
     }
 }
