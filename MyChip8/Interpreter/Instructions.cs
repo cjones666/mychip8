@@ -283,7 +283,7 @@ public static class Instructions
                     cpu.VRegisters[GetParameter(0)!.Value] = cpu.VRegisters[GetParameter(1)!.Value];
                     break;
                 case 0xA:
-                    cpu.I = GetParameter(0)!.Value;
+                    cpu.I = GetParameter(1)!.Value;
                     break;
                 case 0xF:
                     switch (_lowerNib)
@@ -318,7 +318,7 @@ public static class Instructions
                             break;
                         case 0x55:
                             var address = cpu.I;
-                            for (var i = 0; i < GetParameter(0)!.Value; i++)
+                            for (var i = 0; i <= GetParameter(0)!.Value; i++)
                             {
                                 cpu.SystemMemory.SetByteAtAddress(address,cpu.VRegisters[i]);
                                 address++;
@@ -326,7 +326,7 @@ public static class Instructions
                             break;
                         case 0x65:
                             var addressToRead = cpu.I;
-                            for (var i = 0; i < GetParameter(0)!.Value; i++)
+                            for (var i = 0; i <= GetParameter(0)!.Value; i++)
                             {
                                 cpu.VRegisters[i] = cpu.SystemMemory.ReadByteAtAddress(addressToRead);
                                 addressToRead++;

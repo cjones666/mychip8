@@ -1,0 +1,90 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:EmulatorUI.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="EmulatorUI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="CHIP-8 Emulator"
+        Width="800" Height="600"
+        Background="#1E1E1E"
+        KeyDown="OnKeyDown"
+        KeyUp="OnKeyUp">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Menu Bar -->
+        <Menu Grid.Row="0" Background="#2D2D30">
+            <MenuItem Header="_File" Foreground="#CCCCCC">
+                <MenuItem Header="_Open ROM..." Command="{Binding OpenRomCommand}" InputGesture="Ctrl+O"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
+            </MenuItem>
+            <MenuItem Header="_Emulation" Foreground="#CCCCCC">
+                <MenuItem Header="_Play/Pause" Command="{Binding TogglePauseCommand}" InputGesture="Space"/>
+                <MenuItem Header="_Reset" Command="{Binding ResetCommand}" InputGesture="Ctrl+R"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main Display Area -->
+        <Grid Grid.Row="1" Background="#252526">
+            <Border BorderBrush="#3F3F46" BorderThickness="2"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Padding="10">
+                <Canvas Name="DisplayCanvas"
+                        Width="640" Height="320"
+                        Background="#000000"/>
+            </Border>
+        </Grid>
+
+        <!-- Control Panel -->
+        <Border Grid.Row="2" Background="#2D2D30" BorderBrush="#3F3F46" BorderThickness="0,1,0,0" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Playback Controls -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                    <Button Content="▶ Play" Command="{Binding PlayCommand}"
+                            Width="80" Background="#007ACC" Foreground="White"
+                            IsVisible="{Binding !IsRunning}"/>
+                    <Button Content="⏸ Pause" Command="{Binding PauseCommand}"
+                            Width="80" Background="#007ACC" Foreground="White"
+                            IsVisible="{Binding IsRunning}"/>
+                    <Button Content="↻ Reset" Command="{Binding ResetCommand}"
+                            Width="80" Background="#007ACC" Foreground="White"/>
+                    <Button Content="Open ROM" Command="{Binding OpenRomCommand}"
+                            Width="100" Background="#007ACC" Foreground="White"/>
+                </StackPanel>
+
+                <!-- Status Info -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="15">
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="#9CDCFE"
+                               VerticalAlignment="Center"
+                               FontSize="14"/>
+                    <TextBlock Text="{Binding RomName}"
+                               Foreground="#CCCCCC"
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               FontWeight="Bold"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+
+</Window>
