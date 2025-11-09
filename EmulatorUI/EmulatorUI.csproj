@@ -28,5 +28,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MyChip8\MyChip8.csproj" />
+    <ProjectReference Include="..\MyChip8Disassembler\MyChip8Disassembler.csproj" />
   </ItemGroup>
 </Project>
