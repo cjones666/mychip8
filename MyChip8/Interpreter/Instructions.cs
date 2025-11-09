@@ -57,8 +57,8 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            cpu.PC = cpu.Stack[cpu.SP];
             cpu.SP--;
+            cpu.PC = cpu.Stack[cpu.SP];
         }
     }
 
@@ -103,7 +103,7 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            cpu.Stack.Add(GetParameter(0)!.Value);
+            cpu.Stack.Add(cpu.PC);
             cpu.SP++;
             cpu.PC = GetParameter(0)!.Value;
         }
