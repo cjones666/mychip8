@@ -317,19 +317,17 @@ public static class Instructions
                             cpu.SystemMemory.SetByteAtAddress(cpu.I + 2, (byte)onesDigit);
                             break;
                         case 0x55:
-                            var address = cpu.I;
                             for (var i = 0; i <= GetParameter(0)!.Value; i++)
                             {
-                                cpu.SystemMemory.SetByteAtAddress(address,cpu.VRegisters[i]);
-                                address++;
+                                cpu.SystemMemory.SetByteAtAddress(cpu.I,cpu.VRegisters[i]);
+                                cpu.I++;
                             }
                             break;
                         case 0x65:
-                            var addressToRead = cpu.I;
                             for (var i = 0; i <= GetParameter(0)!.Value; i++)
                             {
-                                cpu.VRegisters[i] = cpu.SystemMemory.ReadByteAtAddress(addressToRead);
-                                addressToRead++;
+                                cpu.VRegisters[i] = cpu.SystemMemory.ReadByteAtAddress(cpu.I);
+                                cpu.I++;
                             }
                             break;
                         default:
@@ -384,12 +382,14 @@ public static class Instructions
                     break;
                 case 0x8:
                     ushort value = (ushort)(cpu.VRegisters[GetParameter(0)!.Value] + cpu.VRegisters[GetParameter(1)!.Value]);
-                    if (value > 0x255)
-                        cpu.VRegisters[0xF] = 1;
                     cpu.VRegisters[GetParameter(0)!.Value] = (byte) value;
+                    if (value > 0xFF)
+                        cpu.VRegisters[0xF] = 1;
+                    else
+                        cpu.VRegisters[0xF] = 0;
                     break;
                 case 0xF:
-                    cpu.I = (byte)(cpu.I + cpu.VRegisters[GetParameter(0)!.Value]);
+                    cpu.I = (ushort)(cpu.I + cpu.VRegisters[GetParameter(0)!.Value]);
                     break;
                 default:
                     break;
@@ -415,6 +415,7 @@ public static class Instructions
         public override void Execute(CPU cpu)
         {
             cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(0)!.Value] | cpu.VRegisters[GetParameter(1)!.Value]);
+            cpu.VRegisters[0xF] = 0;
         }
     }
 
@@ -433,6 +434,7 @@ public static class Instructions
         public override void Execute(CPU cpu)
         {
             cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(0)!.Value] & cpu.VRegisters[GetParameter(1)!.Value]);
+            cpu.VRegisters[0xF] = 0;
         }
     }
 
@@ -454,6 +456,7 @@ public static class Instructions
         public override void Execute(CPU cpu)
         {
             cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(0)!.Value] ^ cpu.VRegisters[GetParameter(1)!.Value]);
+            cpu.VRegisters[0xF] = 0;
         }
     }
 
@@ -474,9 +477,13 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            if (cpu.VRegisters[GetParameter(0)!.Value] > cpu.VRegisters[GetParameter(1)!.Value])
+            byte vx = cpu.VRegisters[GetParameter(0)!.Value];
+            byte vy = cpu.VRegisters[GetParameter(1)!.Value];
+            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(vx - vy);
+            if (vx >= vy)
                 cpu.VRegisters[0xF] = 1;
-            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(0)!.Value] - cpu.VRegisters[GetParameter(1)!.Value]);
+            else
+                cpu.VRegisters[0xF] = 0;
         }
     }
 
@@ -497,7 +504,9 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            if ((cpu.VRegisters[GetParameter(0)!.Value] & 1) == 1)
+            byte vx = cpu.VRegisters[GetParameter(0)!.Value];
+            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(vx >> 1);
+            if ((vx & 1) == 1)
             {
                 cpu.VRegisters[0xF] = 1;
             }
@@ -505,7 +514,6 @@ public static class Instructions
             {
                 cpu.VRegisters[0xF] = 0;
             }
-            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(0)!.Value] >> 1);
         }
     }
 
@@ -526,7 +534,10 @@ public static class Instructions
 
         public override void Execute(CPU cpu)
         {
-            if (cpu.VRegisters[GetParameter(1)!.Value] > cpu.VRegisters[GetParameter(0)!.Value])
+            byte vx = cpu.VRegisters[GetParameter(0)!.Value];
+            byte vy = cpu.VRegisters[GetParameter(1)!.Value];
+            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(vy - vx);
+            if (vy >= vx)
             {
                 cpu.VRegisters[0xF] = 1;
             }
@@ -534,7 +545,6 @@ public static class Instructions
             {
                 cpu.VRegisters[0xF] = 0;
             }
-            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(1)!.Value] - cpu.VRegisters[GetParameter(0)!.Value]);
         }
     }
 
@@ -556,7 +566,9 @@ public static class Instructions
         public override void Execute(CPU cpu)
         {
             // Check MSB (bit 7) before shift
-            if ((cpu.VRegisters[GetParameter(0)!.Value] & 0x80) != 0)
+            byte vx = cpu.VRegisters[GetParameter(0)!.Value];
+            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(vx << 1);
+            if ((vx & 0x80) != 0)
             {
                 cpu.VRegisters[0xF] = 1;
             }
@@ -564,7 +576,6 @@ public static class Instructions
             {
                 cpu.VRegisters[0xF] = 0;
             }
-            cpu.VRegisters[GetParameter(0)!.Value] = (byte)(cpu.VRegisters[GetParameter(0)!.Value] << 1);
         }
     }
 
