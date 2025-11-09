@@ -2,7 +2,7 @@ namespace MyChip8.Interpreter;
 
 public static class InstructionHandler
 {
-    public static IInstruction<ushort> GetInstruction(byte upperByte, byte lowerByte)
+    public static IInstruction<ushort>? GetInstruction(byte upperByte, byte lowerByte)
     {
         var instructionBytes = (ushort)(upperByte << 8 | lowerByte);
         return GetInstruction(instructionBytes);
